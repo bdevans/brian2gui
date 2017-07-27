@@ -42,10 +42,12 @@ class Entry(ipw.Box):
     _model_name = Unicode('HBoxModel').tag(sync=True)
     _view_name = Unicode('HBoxView').tag(sync=True)
 
-    def __init__(self, interface=None, group_type=None):
+    def __init__(self, interface=None, *args, **kwargs):  # group_type=None,
         super().__init__()
         self.interface = interface
-        self.group_type = group_type
+        if 'group_type' in kwargs:
+            # self.group_type = group_type
+            self.group_type = kwargs['group_type']
         self._uuid = uuid.uuid4()
 
     def _change_name(self, change):
