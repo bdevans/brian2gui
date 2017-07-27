@@ -123,8 +123,8 @@ class MonitorsEntry(Entry): #ipw.Box):  # MonitorsInterface
 
         # Layout and formatting
         self._source.layout = ipw.Layout(width='110px', height='32px')
-        self._controls['new'].layout = ipw.Layout(width='50px')
-        self._controls['new'].button_style = 'success'
+        self.interface._CONTROLS['new'].layout = ipw.Layout(width='50px')
+        self.interface._CONTROLS['new'].button_style = 'success'
 
         if hasattr(self, '_record'):
             self._record.layout = ipw.Layout(width='80px')
