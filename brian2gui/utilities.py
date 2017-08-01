@@ -7,6 +7,7 @@ from ipywidgets.widgets import register
 
 __all__ = ['Interface', 'Entry']
 
+
 # @abc.ABCMeta
 @register('brian2gui.Interface')
 class Interface(ipw.Box):
@@ -28,7 +29,7 @@ class Interface(ipw.Box):
         self.gui = gui  # Top level container
 
     def on_new_clicked(self, b, *args, **kwargs):
-        self.ENTRIES.append(type(self)(self, *args, **kwargs))  # , self._controls['type'].value
+        self.ENTRIES.append(type(self)(self, *args, **kwargs))
         self.ENTRY_BOX.children = self.ENTRIES  # [nge for nge in self.ENTRIES]
         self.ENTRY_COUNTER += 1
 
@@ -66,8 +67,8 @@ class Entry(ipw.Box):
 
     def get_values(self):
         """Get all values and put them in an OrderedDict"""
-        #return OrderedDict([(label, w.value) for (label, w)
-        #                    in zip(self._FIELDS, self.children)])
+        # return OrderedDict([(label, w.value) for (label, w)
+        #                     in zip(self._FIELDS, self.children)])
         # TODO: Revert to more elegant function above
         pairs = []
         for key in self._FIELDS:
