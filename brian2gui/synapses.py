@@ -127,7 +127,7 @@ class SynapseEntry(Entry):  # Subclass br.Synpases too?
 
         # formatting
         # Create a central dict of format values
-        self.layout = ipw.Layout(border='solid 2px', overflow_x='scroll') #, display='flex', flex_direction='column')
+        self.layout = ipw.Layout(border='solid 1px', overflow_x='scroll', margin='1px') #, display='flex', flex_direction='column')
         self._source.layout = ipw.Layout(width='110px', height='32px')
         self._target.layout = ipw.Layout(width='110px', height='32px')
         self._model.layout = ipw.Layout(min_width='325px')
