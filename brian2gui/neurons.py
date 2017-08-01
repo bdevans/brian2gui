@@ -445,7 +445,7 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         # TODO: Finish attributes
 
         # Formatting
-        self.layout = ipw.Layout(border='solid grey 1px', overflow_x='scroll', margin='1px')
+        self.layout = ipw.Layout(border='solid grey 1px', overflow_x='scroll', margin='2px')
         self._N.layout = ipw.Layout(width='60px', height='32px')
         # Check if setting height stops it resizing properly c.f. old prototype
         self._model.layout = ipw.Layout(min_width='600px') #, height='96px')
