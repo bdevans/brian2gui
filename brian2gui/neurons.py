@@ -13,7 +13,7 @@ from brian2gui.utilities import Interface, Entry, Simulated
 
 
 @register('brian2gui.InputsInterface')
-class InputsInterface(Interface):  # ipw.Box):
+class InputsInterface(Interface):
     """Class definition for Brian 2 Inputs graphical interface"""
 
     _model_name = Unicode('VBoxModel').tag(sync=True)
@@ -27,6 +27,8 @@ class InputsInterface(Interface):  # ipw.Box):
     ENTRY_COUNTER = 0  # class variable shared by all instances
     ENTRIES = []
     ENTRY_BOX = ipw.VBox(children=[])  # NeuronGroupEntry()
+
+    _ids = []  # class variable shared by all instances
 
     def __init__(self, gui=None):
 
@@ -46,10 +48,6 @@ class InputsInterface(Interface):  # ipw.Box):
 
         self.children = [ipw.HBox(children=list(self._CONTROLS.values())),
                          self.ENTRY_BOX]
-        #self.children = [self.accordion]
-
-        #self.accordion.selected_index = list(self._CONTROLS.keys()).index('Neurons')
-        #self.on_new_clicked(None, group_type='PoissonGroup')
 
         # Set formatting for entry controls
         self._CONTROLS['type'].layout = ipw.Layout(width='250px')
@@ -83,8 +81,6 @@ class InputsEntry(Entry, Simulated):
     _model_name = Unicode('HBoxModel').tag(sync=True)
     _view_name = Unicode('HBoxView').tag(sync=True)
 
-    _ids = []  # class variable shared by all instances
-
     # BinomialFunction(n, p, approximate=True, name='_binomial*')
     _BinomialFunction_fields = ('n', 'p', 'approximate', 'name')
     # http://brian2.readthedocs.io/en/stable/reference/brian2.input.poissongroup.PoissonGroup.html
@@ -100,19 +96,17 @@ class InputsEntry(Entry, Simulated):
 
         #ipw.Box.__init__(self, _dom_classes=['widget-interact'])
         super().__init__()
+        self._uuid = uuid.uuid4()
+        self.interface._ids.append(self._uuid)
         self.interface = interface
         self.group_type = group_type
-        # Create widgets
 
+        # Create widgets
         self._name = ipw.Text(value="{}{}".format(self.group_type,
                                                   self.interface.ENTRY_COUNTER),
-                               tooltip='Label')
+                              tooltip='Label')
 
         self._name.observe(self._change_name, names='value')
-
-        self._uuid = uuid.uuid4()
-        # Move these to superclass
-        self._ids.append(self._uuid)
 
         # Create a dict of model attributes to print out and check
 
@@ -122,7 +116,6 @@ class InputsEntry(Entry, Simulated):
             self._n = ipw.BoundedIntText(description='n', min=1, max=1e12, tooltip='Number of samples')
             self._p = ipw.BoundedFloatText(description='p', min=0, max=1, tooltip='Probability')  # value=N
             self._approximate = ipw.Checkbox(description='Approximate', value=True, tooltip='Whether to approximate the binomial with a normal distribution if np>5 ∧ n(1−p)>5')
-            #children = [self._name, self._n, self._p, self._approximate]
 
             self._n.layout = ipw.Layout(width='150px', height='32px')
             self._p.layout = ipw.Layout(width='150px', height='32px')
@@ -136,7 +129,6 @@ class InputsEntry(Entry, Simulated):
             self._clock = ipw.Text(placeholder='clock', tooltip='clock')
             self._when = ipw.Dropdown(description='when', options=self._schedule, tooltip='when')
             self._order = ipw.IntSlider(description='order', value=0, min=0, max=10, step=1)
-            #children = [self._name, self._N, self._rates, self._dt]
 
             self._N.layout = ipw.Layout(width='150px', height='32px')
             self._rates.layout = ipw.Layout(width='60px', height='32px')
@@ -192,7 +184,6 @@ class InputsEntry(Entry, Simulated):
             # TimedArray(values, dt, name=None)
             self._values = ipw.Text(placeholder='values', tooltip='values')
             self._dt = ipw.Text(placeholder='dt', value='0.1*ms', tooltip='dt')
-            #children = [self._name, self._values, self._dt]
 
             self._values.layout = ipw.Layout(width='300px', height='32px')
             self._dt.layout = ipw.Layout(width='60px', height='32px')
@@ -209,7 +200,6 @@ class InputsEntry(Entry, Simulated):
                                   tooltip='Delete', icon='fa-trash') # description='Delete',
         self._delete.on_click(self.on_click_delete)
 
-        # TODO: Use this to generate children
         children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
         children.extend([self._copy, self._delete])
         self.children = children
@@ -228,30 +218,22 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
     _model_name = Unicode('VBoxModel').tag(sync=True)
     _view_name = Unicode('VBoxView').tag(sync=True)
 
-    #_NEURON_TYPES = ('NeuronGroup', 'PoissonGroup', 'PoissonInput',
-    #                 'SpikeGeneratorGroup')
-
-    #_TYPES = ('BinomialFunction', 'PoissonGroup', 'PoissonInput',
-    #                'SpikeGeneratorGroup', 'TimedArray')
     _TYPES = ('NeuronGroup')
     # _SHORT_NEURON_TYPES = ('NG', 'PG', 'PI', 'SGG')
 
     _methods = ('linear', 'euler', 'heun')
 
     # Make this an OrderedDict with the values as widths
-    _NEURON_HEADER = ('Label', '$N$', 'Equations', 'Threshold', 'Reset',
-                      'Refractoriness', 'Integrator')
+    #_NEURON_HEADER = ('Label', '$N$', 'Equations', 'Threshold', 'Reset',
+    #                  'Refractoriness', 'Integrator')
 
-    _labels = [ipw.Label(value=field) for field in _NEURON_HEADER]
+    #_labels = [ipw.Label(value=field) for field in _NEURON_HEADER]
 
     ENTRY_COUNTER = 0  # class variable shared by all instances
     ENTRIES = []
     ENTRY_BOX = ipw.VBox(children=[])  # NeuronGroupEntry()
 
-    #INPUT_ENTRIES = []  # All input objects
-    #INPUT_ENTRY_BOX = ipw.VBox(children=[])
-    #NEURON_ENTRIES = []  # Just for NeuronGroups as these are the only targets
-    #NEURON_ENTRY_BOX = ipw.VBox(children=[])
+    _ids = []  # class variable shared by all instances
 
     def __init__(self, gui=None):
 
@@ -301,7 +283,6 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
 
         #self.children[0].children[0].width = '250px'
 
-
 # NeuronGroup(N, model, method=('linear', 'euler', 'heun'), threshold=None,
 #             reset=None, refractory=False, events=None, namespace=None,
 #             dtype=None, dt=None, clock=None, order=0, name='neurongroup*',
@@ -330,23 +311,11 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
     _model_name = Unicode('VBoxModel').tag(sync=True)
     _view_name = Unicode('VBoxView').tag(sync=True)
 
-    _ids = []  # class variable shared by all instances
-
     # NeuronGroup(N, model, method=('linear', 'euler', 'heun'), threshold=None,
     # reset=None, refractory=False, events=None, namespace=None, dtype=None,
     # dt=None, clock=None, order=0, name='neurongroup*', codeobj_class=None)
-    _NeuronGroup_fields = ('N', 'model', 'method', 'threshold', 'reset',
-                           'refractory', 'name')  # 'events', 'namespace', 'dtype', 'dt', 'clock', 'order', 'codeobj_class'
-
-    _FIELDS = _NeuronGroup_fields  #('name', 'N', 'model', 'threshold', 'reset',
-              # 'refractory', 'method')
-
-    #def _change_label(self, change):
-    #    self._label.value = change['new']
-        #for sg in synapse_groups:
-            # This method preserves the order shown (vs. options = neuron_map.keys())
-        #    sg['Source'].options = [ng['Label'].value for ng in ENTRIES]
-        #    sg['Target'].options = [ng['Label'].value for ng in ENTRIES]
+    _FIELDS = ('N', 'model', 'method', 'threshold', 'reset', 'refractory', 'name')
+    # 'events', 'namespace', 'dtype', 'dt', 'clock', 'order', 'codeobj_class'
 
     @property
     def name(self):
@@ -412,28 +381,24 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
     #    super(Box, self).__init__(**kwargs)
     #    self.on_displayed(Box._fire_children_displayed)
 
-    def __init__(self, interface=None, group_type='NeuronGroup', *args, **kwargs):  # N=10, model=LIF, method=None,
-                 #threshold='v > 10*mV', reset='v = 0*mV', refractory='5*ms'):
+    def __init__(self, interface=None, group_type='NeuronGroup', *args, **kwargs):
 
         #ipw.Box.__init__(self, _dom_classes=['widget-interact'])
         super().__init__()
+        self._uuid = uuid.uuid4()
+        self.interface._ids.append(self._uuid)
         self.interface = interface
         self.group_type = group_type
-        # Create widgets
 
+        # Create widgets
         self._name = ipw.Text(value="{}{}".format(self.group_type,
                                                   self.interface.ENTRY_COUNTER),
                                tooltip='Label')
 
         self._name.observe(self._change_name, names='value')
 
-        self._uuid = uuid.uuid4()
-        # Move these to superclass
-        self._ids.append(self._uuid)
-
         # Create a dict of model attributes to print out and check
 
-        self._FIELDS = self._NeuronGroup_fields
         # events=None, namespace=None, dtype=None,
         # dt=None, clock=None, order=0, name='neurongroup*', codeobj_class=None]
         self._N = ipw.BoundedIntText(placeholder='N', min=1, max=1e12, tooltip='Number of neurons')  # value=N
@@ -463,8 +428,6 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         #self.ENTRY_BOX.children = [NGE for NGE in self.ENTRIES]
 
 
-
-
         # 'primary' 'success' 'info' 'warning' 'danger'
         self._copy = ipw.Button(button_style='info',
                                 tooltip='Copy', icon='copy') # description='Copy',
@@ -473,19 +436,18 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
                                   tooltip='Delete', icon='fa-trash') # description='Delete',
         self._delete.on_click(self.on_click_delete)
 
-        #self.children = [self._name, self._N, self._model, self._threshold,
-        #                 self._reset, self._refractory, self._method,
-        #                 self._copy, self._delete]
-
         #self.on_displayed(ipw.Box._fire_children_displayed)
         #self._model_id = None
 
-        #if self.group_type is 'NeuronGroup':  # interface._controls['type']
         model = self.interface._CONTROLS['template'].value
         self.set_values(NEURON_MODELS[model])
         #for key, value in NEURON_MODELS['template'].items():
         #    field = '_{}'.format(key)
         #    self.__dict__[field].value = value
+
+        #self.children = [self._name, self._N, self._model, self._threshold,
+        #                 self._reset, self._refractory, self._method,
+        #                 self._copy, self._delete]
 
         #children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
         #children.extend([self._name, self._copy, self._delete])
@@ -503,13 +465,3 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         self._delete.layout = ipw.Layout(width='25px', height='28px')
 
         #display(self)
-
-    #def get_entry_index(self):
-    #    return self.interface.ENTRIES.index(self)
-
-    #def on_click_neuron_delete(self, b):
-    #    del self.interface.ENTRIES[self.get_entry_index()]
-    #    self.interface.ENTRY_BOX.children = self.interface.ENTRIES
-
-        #self.ENTRIES[NGE for NGE in self.ENTRIES if NGE != self.get_entry_index()]
-        #self.ENTRY_BOX.children = [NGE for NGE in self.ENTRIES]
