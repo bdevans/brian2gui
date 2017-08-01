@@ -42,13 +42,14 @@ class Brian2GUI(ipw.Box):
             self._accordion.set_title(ind, title)
         self._accordion.selected_index = self._accordion_titles.index('Neurons')
         self._Neurons_tab.children = [self._accordion]
+        # TODO: Add SpatialNeuron
         #self._Neurons_tab.children = [NeuronGroupInterface(self)]
         self._Synapses_tab.children = [SynapsesInterface(self)]
         self._Parameters_tab.children = [ipw.Textarea(placeholder='Enter additional parameters here. ')]
         self._Monitors_tab.children = [MonitorsInterface(self)]
         self._Run_tab.children = [RunInterface(self)]
         #self._Results_tab.children = [ipw.Button(description='Plot', tooltip='Plot',
-        #                                     button_style='danger', icon='fa-area-chart')]
+        #                                         button_style='danger', icon='fa-area-chart')]
 
         self.children = [self._tabs]
 
