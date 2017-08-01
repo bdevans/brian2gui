@@ -34,19 +34,15 @@ class Brian2GUI(ipw.Box):
             setattr(self, '_{}_tab'.format(name), self._tabs.children[ind])
             #self._tabs.children[ind].layout = ipw.Layout(width='800px')
 
-        #self._Neurons_tab.children = [NeuronGroupInterface(self)]
         # Make accordion for each type of group
         self._accordion_titles = ['Inputs', 'Neurons']
-        #self._accordion = ipw.Accordion(children=[ipw.VBox(children=[ipw.HBox(children=list(self._CONTROLS['Inputs'].values())), self.INPUT_ENTRY_BOX]),
-        #                                         ipw.VBox(children=[ipw.HBox(children=list(self._CONTROLS['Neurons'].values())), self.NEURON_ENTRY_BOX])])
         self._accordion = ipw.Accordion(children=[ipw.VBox(children=[InputsInterface(self)]),
-                                                 ipw.VBox(children=[NeuronGroupInterface(self)])])
-
+                                                  ipw.VBox(children=[NeuronGroupInterface(self)])])
         for ind, title in enumerate(self._accordion_titles):  # self._CONTROLS.keys()):
             self._accordion.set_title(ind, title)
         self._accordion.selected_index = self._accordion_titles.index('Neurons')
         self._Neurons_tab.children = [self._accordion]
-
+        #self._Neurons_tab.children = [NeuronGroupInterface(self)]
         self._Synapses_tab.children = [SynapsesInterface(self)]
         self._Parameters_tab.children = [ipw.Textarea(placeholder='Enter additional parameters here. ')]
         self._Monitors_tab.children = [MonitorsInterface(self)]
@@ -63,21 +59,27 @@ class Brian2GUI(ipw.Box):
                                     ('Synapses', self._Synapses_tab.children[0].ENTRIES),
                                     ('Monitors', self._Monitors_tab.children[0].ENTRIES)])
 
+        # Assign callback functions
         self._accordion.observe(self.on_input_change, names='selected_index')
         self._tabs.observe(self.on_tab_change, names='selected_index')
 
+        # Layout and formatting
         self._tabs.layout = ipw.Layout(width='900px')
         #display(self)
 
     def on_tab_change(self, change):
         '''Update lists of NeuronGroup names for Synapses and Monitors'''
-        # Raise an error if there are no Neurongroups
+        # Raise an error if there are no NeuronGroups
         if change['old'] is list(self.entries.keys()).index('Neurons'):
+            inputs = self.get_input_names()
+            neurons = self.get_neuron_group_names()
+            sources = [*inputs, *neurons]
+
             for syn in self.entries['Synapses']:
-                syn._source.options = self.get_neuron_group_names()
-                syn._target.options = self.get_neuron_group_names()
+                syn._source.options = sources
+                syn._target.options = neurons
             for mon in self.entries['Monitors']:
-                mon._source.options = self.get_neuron_group_names()
+                mon._source.options = neurons
         return
 
     def on_input_change(self, change):
@@ -86,6 +88,9 @@ class Brian2GUI(ipw.Box):
             for inp in self.entries['Inputs']:
                 if inp.group_type is 'PoissonInput':
                     inp._target.options = self.get_neuron_group_names()
+
+    def get_input_names(self):
+        return [obj.name for obj in self.entries['Inputs']]
 
     def get_neuron_group_names(self):
         return [group.name for group in self.entries['Neurons']]

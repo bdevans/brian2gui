@@ -71,8 +71,12 @@ class SynapseEntry(Entry):  # Subclass br.Synpases too?
         self._ids.append(self._uuid)
 
         # Create widgets
-        self._ITEMS = OrderedDict([('source', ipw.Dropdown(tooltip='Source neurons', options=self.interface.gui.get_neuron_group_names())),
-                                   ('target', ipw.Dropdown(tooltip='Target neurons', options=self.interface.gui.get_neuron_group_names())),
+        inputs = self.interface.gui.get_input_names()
+        neurons = self.interface.gui.get_neuron_group_names()
+        sources = [*inputs, *neurons]
+
+        self._ITEMS = OrderedDict([('source', ipw.Dropdown(tooltip='Source neurons', options=sources)),
+                                   ('target', ipw.Dropdown(tooltip='Target neurons', options=neurons)),
                                    ('model', ipw.Textarea(placeholder='model', tooltip='Model equations')),
                                    ('on_pre', ipw.Text(placeholder='on_pre')), #description='on_pre'
                                    ('on_post', ipw.Text(placeholder='on_post')), #description='on_post'
