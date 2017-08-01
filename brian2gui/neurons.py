@@ -4,12 +4,15 @@ import uuid
 import ipywidgets as ipw
 from ipywidgets.widgets import register
 from IPython.display import display
+import traitlets
 from traitlets import Unicode
 
 # from brian2gui.notebook import Brian2GUI
 from brian2gui.models import NEURON_MODELS  # , LIF
 from brian2gui.synapses import SynapseEntry
 from brian2gui.utilities import Interface, Entry, Simulated
+
+import brian2 as br
 
 
 @register('brian2gui.InputsInterface')
@@ -96,10 +99,10 @@ class InputsEntry(Entry, Simulated):
 
         #ipw.Box.__init__(self, _dom_classes=['widget-interact'])
         super().__init__()
-        self._uuid = uuid.uuid4()
-        self.interface._ids.append(self._uuid)
         self.interface = interface
         self.group_type = group_type
+        self._uuid = uuid.uuid4()
+        self.interface._ids.append(self._uuid)
 
         # Create widgets
         self._name = ipw.Text(value="{}{}".format(self.group_type,
@@ -242,9 +245,10 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
 
         self.gui = gui  # Top level container
 
-        self._CONTROLS = OrderedDict([#('type', ipw.Dropdown(description='Type', options=self._NEURON_TYPES)),
-                                      ('template', ipw.Dropdown(description='Template', options=list(NEURON_MODELS.keys()))),
-                                      ('new', ipw.Button(description='Add'))])
+        self._CONTROLS = OrderedDict([('template', ipw.Dropdown(description='Template', options=list(NEURON_MODELS.keys()))),
+                                      ('new', ipw.Button(description='Add', button_style='success', tooltip='Create new object', icon='fa-plus')),
+                                      ('check', ipw.Button(description='Check', button_style='info', tooltip='Check Brian objects', icon='fa-search')),
+                                      ('valid', ipw.Valid())])
 
         # Make accordion for each type of group
         #input_controls = OrderedDict([('type', ipw.Dropdown(description='Type', options=self._TYPES)),
@@ -269,9 +273,9 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
 
         #self._CONTROLS['new'].on_click(self.on_new_clicked)
 
-        #self._CONTROLS['Inputs']['new'].on_click(self.on_new_clicked)
-        #self._CONTROLS['Neurons']['new'].on_click(self.on_new_clicked)
+        # Set callback functions
         self._CONTROLS['new'].on_click(self.on_new_clicked)
+        self._CONTROLS['check'].on_click(self.on_check_clicked)
 
         #self.accordion.selected_index = list(self._CONTROLS.keys()).index('Neurons')
         self.on_new_clicked(None)  # Create a neuron group of the default type (blank)
@@ -302,11 +306,17 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
         self.ENTRY_BOX.children = self.ENTRIES  # [nge for nge in self.ENTRIES]
         self.ENTRY_COUNTER += 1
 
+    def on_check_clicked(self, b):
+        '''Validate Brian objects'''
+        self._CONTROLS['valid'].value = False
+        for entry in self.ENTRIES:
+            entry.create_brian_object()
+        self._CONTROLS['valid'].value = True
+
 
 @register('brian2gui.NeuronGroupEntry')
-class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
+class NeuronGroupEntry(Entry, traitlets.HasTraits):
     """Class definition for Brian 2 NeuronGroup graphical entries"""
-    # Should this be a single row or the whole set?
 
     _model_name = Unicode('VBoxModel').tag(sync=True)
     _view_name = Unicode('VBoxView').tag(sync=True)
@@ -325,6 +335,7 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
     def name(self, name):
         self._name.value = name
 
+    N = traitlets.Int()
     @property
     def N(self):
         return self._N.value  # or self._default_N
@@ -385,15 +396,16 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
 
         #ipw.Box.__init__(self, _dom_classes=['widget-interact'])
         super().__init__()
-        self._uuid = uuid.uuid4()
-        self.interface._ids.append(self._uuid)
         self.interface = interface
         self.group_type = group_type
+        self._uuid = uuid.uuid4()
+        self.interface._ids.append(self._uuid)
+        self._links = {}
 
         # Create widgets
         self._name = ipw.Text(value="{}{}".format(self.group_type,
                                                   self.interface.ENTRY_COUNTER),
-                               tooltip='Label')
+                              tooltip='Label')
 
         self._name.observe(self._change_name, names='value')
 
@@ -465,3 +477,11 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         self._delete.layout = ipw.Layout(width='25px', height='28px')
 
         #display(self)
+
+    def create_brian_object(self):
+        self.br = br.NeuronGroup(self.N, self.model, method=self.method)
+        #self._links['N'] = traitlets.link((self, 'N'), (self.br, 'N'))
+        for field in self._FIELDS:
+            #self._links[field] = traitlets.link((self, '_{}'.format(field)),
+            #                                    (self.br, field))
+            self._links[field] = traitlets.link((self, field), (self.br, field))
