@@ -327,8 +327,8 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
     """Class definition for Brian 2 NeuronGroup graphical entries"""
     # Should this be a single row or the whole set?
 
-    _model_name = Unicode('HBoxModel').tag(sync=True)
-    _view_name = Unicode('HBoxView').tag(sync=True)
+    _model_name = Unicode('VBoxModel').tag(sync=True)
+    _view_name = Unicode('VBoxView').tag(sync=True)
 
     _ids = []  # class variable shared by all instances
 
@@ -443,13 +443,12 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         self._reset = ipw.Text(placeholder='reset', tooltip='Reset condtion')
         self._refractory = ipw.Text(placeholder='refractory', tooltip='Refractory period')
         # TODO: Finish attributes
-        children = [self._name, self._N, self._model, self._method,
-                    self._threshold, self._reset, self._refractory]
 
         # Formatting
+        self.layout = ipw.Layout(border='solid 1px', overflow_x='scroll', margin='1px')
         self._N.layout = ipw.Layout(width='60px', height='32px')
         # Check if setting height stops it resizing properly c.f. old prototype
-        self._model.layout = ipw.Layout(min_width='325px') #, height='96px')
+        self._model.layout = ipw.Layout(min_width='600px') #, height='96px')
         self._threshold.layout = ipw.Layout(width='80px', height='32px')
         self._reset.layout = ipw.Layout(width='80px', height='32px')
         self._refractory.layout = ipw.Layout(width='80px', height='32px')
@@ -488,8 +487,13 @@ class NeuronGroupEntry(Entry):  # ipw.Box):  # NeuronGroupInterface
         #    field = '_{}'.format(key)
         #    self.__dict__[field].value = value
 
-        children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
-        children.extend([self._copy, self._delete])
+        #children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
+        #children.extend([self._name, self._copy, self._delete])
+        children = [ipw.HBox(children=[self._N, self._method, self._threshold,
+                                       self._reset, self._refractory,
+                                       self._name, self._copy, self._delete]),
+                    ipw.HBox(children=[self._model])]
+
         self.children = children
 
         # Formatting - may need to set padding to align labels properly
