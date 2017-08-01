@@ -27,8 +27,8 @@ class Interface(ipw.Box):
         super().__init__(*args, **kwargs)
         self.gui = gui  # Top level container
 
-    def on_new_clicked(self, b):
-        self.ENTRIES.append(type(self)(self))  # , self._controls['type'].value
+    def on_new_clicked(self, b, *args, **kwargs):
+        self.ENTRIES.append(type(self)(self, *args, **kwargs))  # , self._controls['type'].value
         self.ENTRY_BOX.children = self.ENTRIES  # [nge for nge in self.ENTRIES]
         self.ENTRY_COUNTER += 1
 
@@ -41,6 +41,14 @@ class Entry(ipw.Box):
 
     _model_name = Unicode('HBoxModel').tag(sync=True)
     _view_name = Unicode('HBoxView').tag(sync=True)
+
+    @property
+    def name(self):
+        return self._name.value
+
+    @name.setter
+    def name(self, name):
+        self._name.value = name
 
     def __init__(self, interface=None, *args, **kwargs):  # group_type=None,
         super().__init__()
@@ -58,8 +66,15 @@ class Entry(ipw.Box):
 
     def get_values(self):
         """Get all values and put them in an OrderedDict"""
-        return OrderedDict([(label, w.value) for (label, w)
-                            in zip(self._FIELDS, self.children)])
+        #return OrderedDict([(label, w.value) for (label, w)
+        #                    in zip(self._FIELDS, self.children)])
+        # TODO: Revert to more elegant function above
+        pairs = []
+        for key in self._FIELDS:
+            attribute = '_{}'.format(key)
+            if hasattr(self, attribute):
+                pairs.append((key, self.__dict__[attribute].value))
+        return OrderedDict(pairs)
 
     def set_values(self, values_dict):
         """Set all values except the label from a dictionary"""

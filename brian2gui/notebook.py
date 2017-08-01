@@ -5,7 +5,7 @@ from IPython.display import display
 from traitlets import Unicode
 from ipywidgets.widgets import register
 # import brian2 as br
-from brian2gui.neurons import NeuronGroupInterface
+from brian2gui.neurons import InputsInterface, NeuronGroupInterface
 from brian2gui.synapses import SynapsesInterface
 from brian2gui.monitors import MonitorsInterface
 from brian2gui.run import RunInterface
@@ -34,7 +34,19 @@ class Brian2GUI(ipw.Box):
             setattr(self, '_{}_tab'.format(name), self._tabs.children[ind])
             #self._tabs.children[ind].layout = ipw.Layout(width='800px')
 
-        self._Neurons_tab.children = [NeuronGroupInterface(self)]
+        #self._Neurons_tab.children = [NeuronGroupInterface(self)]
+        # Make accordion for each type of group
+        self._accordion_titles = ['Inputs', 'Neurons']
+        #self._accordion = ipw.Accordion(children=[ipw.VBox(children=[ipw.HBox(children=list(self._CONTROLS['Inputs'].values())), self.INPUT_ENTRY_BOX]),
+        #                                         ipw.VBox(children=[ipw.HBox(children=list(self._CONTROLS['Neurons'].values())), self.NEURON_ENTRY_BOX])])
+        self._accordion = ipw.Accordion(children=[ipw.VBox(children=[InputsInterface(self)]),
+                                                 ipw.VBox(children=[NeuronGroupInterface(self)])])
+
+        for ind, title in enumerate(self._accordion_titles):  # self._CONTROLS.keys()):
+            self._accordion.set_title(ind, title)
+        self._accordion.selected_index = self._accordion_titles.index('Neurons')
+        self._Neurons_tab.children = [self._accordion]
+
         self._Synapses_tab.children = [SynapsesInterface(self)]
         self._Parameters_tab.children = [ipw.Textarea(placeholder='Enter additional parameters here. ')]
         self._Monitors_tab.children = [MonitorsInterface(self)]
@@ -46,10 +58,12 @@ class Brian2GUI(ipw.Box):
 
         self.interfaces = OrderedDict([(name, tab.children) for name, tab
                                        in zip(self._TAB_NAMES, self._tabs.children)])
-        self.entries = OrderedDict([('Neurons', self._Neurons_tab.children[0].ENTRIES),
+        self.entries = OrderedDict([('Inputs', self._Neurons_tab.children[0].children[0].children[0].ENTRIES),
+                                    ('Neurons', self._Neurons_tab.children[0].children[1].children[0].ENTRIES),
                                     ('Synapses', self._Synapses_tab.children[0].ENTRIES),
                                     ('Monitors', self._Monitors_tab.children[0].ENTRIES)])
 
+        self._accordion.observe(self.on_input_change, names='selected_index')
         self._tabs.observe(self.on_tab_change, names='selected_index')
 
         self._tabs.layout = ipw.Layout(width='900px')
@@ -65,6 +79,13 @@ class Brian2GUI(ipw.Box):
             for mon in self.entries['Monitors']:
                 mon._source.options = self.get_neuron_group_names()
         return
+
+    def on_input_change(self, change):
+        '''Update lists of NeuronGroup names for PoissonInput'''
+        if change['old'] is self._accordion_titles.index('Neurons'):
+            for inp in self.entries['Inputs']:
+                if inp.group_type is 'PoissonInput':
+                    inp._target.options = self.get_neuron_group_names()
 
     def get_neuron_group_names(self):
         return [group.name for group in self.entries['Neurons']]
