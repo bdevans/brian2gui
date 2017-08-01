@@ -9,7 +9,7 @@ from traitlets import Unicode
 # from brian2gui.notebook import Brian2GUI
 from brian2gui.models import NEURON_MODELS  # , LIF
 from brian2gui.synapses import SynapseEntry
-from brian2gui.utilities import Interface, Entry
+from brian2gui.utilities import Interface, Entry, Simulated
 
 
 @register('brian2gui.InputsInterface')
@@ -77,7 +77,7 @@ class InputsInterface(Interface):  # ipw.Box):
 
 
 @register('brian2gui.InputsEntry')
-class InputsEntry(Entry):
+class InputsEntry(Entry, Simulated):
     """Class definition for Brian 2 Inputs graphical entries"""
 
     _model_name = Unicode('HBoxModel').tag(sync=True)
@@ -116,7 +116,6 @@ class InputsEntry(Entry):
 
         # Create a dict of model attributes to print out and check
 
-
         if self.group_type is 'BinomialFunction':
             self._FIELDS = self._BinomialFunction_fields
             # BinomialFunction(n, p, approximate=True, name='_binomial*')
@@ -129,53 +128,64 @@ class InputsEntry(Entry):
             self._p.layout = ipw.Layout(width='150px', height='32px')
 
         elif self.group_type is 'PoissonGroup':
-            # TODO: Finish attributes
-            self._FIELDS = ('N', 'rates', 'dt', 'name')  # self._PoissonGroup_fields
+            self._FIELDS = self._PoissonGroup_fields
             # ('N', 'rates', 'dt', 'clock', 'when', 'order', 'name')
             self._N = ipw.BoundedIntText(description='N', min=1, max=1e12, tooltip='Number of neurons')
             self._rates = ipw.Text(placeholder='rates', tooltip='Single rate, array of rates of length N, or a string expression evaluating to a rate. This string expression will be evaluated at every time step, it can therefore be time-dependent (e.g. refer to a TimedArray).')
             self._dt = ipw.Text(placeholder='dt', value='0.1*ms', tooltip='dt')
+            self._clock = ipw.Text(placeholder='clock', tooltip='clock')
+            self._when = ipw.Dropdown(description='when', options=self._schedule, tooltip='when')
+            self._order = ipw.IntSlider(description='order', value=0, min=0, max=10, step=1)
             #children = [self._name, self._N, self._rates, self._dt]
 
             self._N.layout = ipw.Layout(width='150px', height='32px')
             self._rates.layout = ipw.Layout(width='60px', height='32px')
             self._dt.layout = ipw.Layout(width='60px', height='32px')
+            self._clock.layout = ipw.Layout(width='60px', height='32px')
+            self._when.layout = ipw.Layout(width='300px', height='32px')
+            self._order.layout = ipw.Layout(width='400px', height='32px')
 
         elif self.group_type is 'PoissonInput':
-            # TODO: Finish attributes
-            self._FIELDS = ('target', 'target_var', 'N', 'rate', 'weight', 'name')  # self._PoissonInput_fields
+            self._FIELDS = self._PoissonInput_fields
             # PoissonInput(target, target_var, N, rate, weight, when='synapses', order=0)
             self._target = ipw.Dropdown(options=self.interface.gui.get_neuron_group_names(), tooltip='The group that is targeted by this input.')
             self._target_var = ipw.Text(placeholder='target_var', tooltip='The variable of target that is targeted by this input.')
             self._N = ipw.BoundedIntText(description='N', min=1, max=1e12, tooltip='The number of inputs')
             self._rate = ipw.Text(placeholder='rate', tooltip='The rate of each of the inputs')
             self._weight = ipw.Text(placeholder='weight', tooltip='Either a string expression (that can be interpreted in the context of target) or a Quantity that will be added for every event to the target_var of target. The unit has to match the unit of target_var')
-            #children = [self._name, self._target, self._target_var, self._N,
-            #            self._rate, self._weight]
+            self._when = ipw.Dropdown(description='when', options=self._schedule, tooltip='when')
+            self._order = ipw.IntSlider(description='order', value=0, min=0, max=10, step=1)
 
             self._target.layout = ipw.Layout(width='110px', height='32px')
             self._target_var.layout = ipw.Layout(width='110px', height='32px')
             self._N.layout = ipw.Layout(width='150px', height='32px')
             self._rate.layout = ipw.Layout(width='60px', height='32px')
             self._weight.layout = ipw.Layout(width='60px', height='32px')
+            self._when.layout = ipw.Layout(width='300px', height='32px')
+            self._order.layout = ipw.Layout(width='400px', height='32px')
 
         elif self.group_type is 'SpikeGeneratorGroup':
-            # TODO: Finish attributes
-            self._FIELDS = ('N', 'indices', 'times', 'dt', 'period', 'name')  # self._SpikeGeneratorGroup_fields
+            # TODO: Finish attributes: codeobj_class
+            self._FIELDS = ('N', 'indices', 'times', 'dt', 'clock', 'period', 'when', 'order', 'sorted', 'name')  # self._SpikeGeneratorGroup_fields
             # SpikeGeneratorGroup(N, indices, times, dt=None, clock=None, period=1e100*second, when='thresholds', order=0, sorted=False, name='spikegeneratorgroup*', codeobj_class=None)
             self._N = ipw.BoundedIntText(description='N', min=1, max=1e12, tooltip='Number of neurons')  # value=N
             self._indices = ipw.Text(placeholder='indices', tooltip='The indices of the spiking cells')
             self._times = ipw.Text(placeholder='times', tooltip='The spike times for the cells given in indices. Has to have the same length as indices.')
             self._dt = ipw.Text(placeholder='dt', value='0.1*ms', tooltip='dt')
+            self._clock = ipw.Text(placeholder='clock', tooltip='clock')
             self._period = ipw.Text(placeholder='period', tooltip='If this is specified, it will repeat spikes with this period.')
-            #children = [self._name, self._N, self._indices, self._times,
-            #            self._dt, self._period]
+            self._when = ipw.Dropdown(description='when', options=self._schedule, tooltip='when')
+            self._order = ipw.IntSlider(description='order', value=0, min=0, max=10, step=1)
+            self._sorted = ipw.Checkbox(description='Sorted', value=False, tooltip='Whether the given indices and times are already sorted. ')
 
             self._N.layout = ipw.Layout(width='150px', height='32px')
             self._indices.layout = ipw.Layout(width='250px', height='32px')
             self._times.layout = ipw.Layout(width='250px', height='32px')
             self._dt.layout = ipw.Layout(width='60px', height='32px')
+            self._clock.layout = ipw.Layout(width='60px', height='32px')
             self._period.layout = ipw.Layout(width='60px', height='32px')
+            self._when.layout = ipw.Layout(width='300px', height='32px')
+            self._order.layout = ipw.Layout(width='400px', height='32px')
 
         elif self.group_type is 'TimedArray':
             self._FIELDS = self._TimedArray_fields

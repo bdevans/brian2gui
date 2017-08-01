@@ -96,3 +96,16 @@ class Entry(ipw.Box):
     def on_click_delete(self, b):
         del self.interface.ENTRIES[self.get_index()]
         self.interface.ENTRY_BOX.children = self.interface.ENTRIES
+
+
+@register('brian2gui.Simulated')
+class Simulated(object):
+    '''Class for simulated objects.
+    See: http://brian2.readthedocs.io/en/stable/user/running.html'''
+
+    __metaclass__ = abc.ABCMeta
+
+    _dt = None
+    _schedule = ['start', 'groups', 'thresholds', 'synapses', 'resets', 'end']
+    _when = None
+    _order = None  # Default: 0
