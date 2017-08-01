@@ -30,17 +30,19 @@ class RunInterface(Interface):  # brian2gui.
                                    ('duration', ipw.Text(description='Duration', value='100*ms'))])
         for field in self._FIELDS:
             setattr(self, '_{}'.format(field), self._ITEMS[field])
-
-        self._progress = ipw.FloatProgress(description='Progress', min=0, max=1)
-        self.children = (self._timestep,
+        #'fa-flask'
+        self._progress = ipw.FloatProgress(description='Progress', icon='fa-hourglass', min=0, max=1)
+        self.children = (ipw.Button(description='Build', button_style='success',
+                                    tooltip='Build', icon='fa-gears'),
+                         self._timestep,
                          self._duration,
-                         ipw.Button(description='Run', button_style='danger',
-                                    tooltip='Run', icon='fa-flask'),
+                         ipw.Button(description='Run', button_style='success',
+                                    tooltip='Run', icon='fa-play'),
                          self._progress,
                          ipw.Button(description='Save', button_style='info',
-                                    tooltip='Save', icon='fa-flask'),
+                                    tooltip='Save', icon='fa-save'),
                          ipw.Button(description='Load', button_style='info',
-                                    tooltip='Load', icon='fa-flask'),
+                                    tooltip='Load', icon='fa-sign-in'),
                          ipw.Text(description='Filename'))
                          #(ipw.HBox(children=list(self._CONTROLS.values())),
                          #ipw.HBox(children=self._LABELS),
