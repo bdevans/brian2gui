@@ -6,18 +6,18 @@ from traitlets import Unicode
 #import uuid
 from ipywidgets.widgets import register
 
-from brian2gui.utilities import Entry
+from brian2gui.utilities import Interface, Entry
 
 
 @register('brian2gui.MonitorsInterface')
-class MonitorsInterface(ipw.Box):
+class MonitorsInterface(Interface):  # ipw.Box):
 
     _model_name = Unicode('VBoxModel').tag(sync=True)
     _view_name = Unicode('VBoxView').tag(sync=True)
 
     _TYPES = ('SpikeMonitor', 'StateMonitor', 'PopulationRateMonitor', 'EventMonitor')
-    _CONTROLS = OrderedDict([('type', ipw.Dropdown(description='Type', options=_TYPES)),
-                             ('new', ipw.Button(description='Add'))])
+    #_CONTROLS = OrderedDict([('type', ipw.Dropdown(description='Type', options=_TYPES)),
+                             #('new', ipw.Button(description='Add'))])
     # These should be moved into each instance due to different attributes
 
     # SpikeMonitor(source, variables=None, record=True, when=None, order=None, name='spikemonitor*', codeobj_class=None)
@@ -36,12 +36,20 @@ class MonitorsInterface(ipw.Box):
         super().__init__(*args, **kwargs)
         self.gui = gui  # Top level container
 
+        self._CONTROLS = OrderedDict([('type', ipw.Dropdown(description='Type',
+                                                            options=self._TYPES)),
+                                      ('new', self._ITEMS['new']),
+                                      ('check', self._ITEMS['check']),
+                                      ('valid', self._ITEMS['valid'])])
 
         self.children = (ipw.HBox(children=list(self._CONTROLS.values())),
-                         #ipw.HBox(children=self._LABELS),
                          self.ENTRY_BOX)
 
-        self._CONTROLS['new'].on_click(self.on_new_clicked)
+        #self._CONTROLS['new'].on_click(self.on_new_clicked)
+
+        # Formatting
+        self._CONTROLS['new'].layout = ipw.Layout(width='50px')
+        self._CONTROLS['new'].button_style = 'success'
 
     def on_new_clicked(self, b):
         self.ENTRIES.append(MonitorsEntry(self, self._CONTROLS['type'].value))
@@ -107,24 +115,24 @@ class MonitorsEntry(Entry): #ipw.Box):  # MonitorsInterface
                               tooltip='Name')
         self._name.observe(self._change_name, names='value')
 
-        self._copy = ipw.Button(button_style='info',
-                                tooltip='Copy', icon='copy') # description='Copy',
-        self._copy.on_click(self.on_click_copy)
-        self._delete = ipw.Button(button_style='danger',
-                                  tooltip='Delete', icon='fa-trash') # description='Delete',
-        self._delete.on_click(self.on_click_delete)
+        #self._copy = ipw.Button(button_style='info',
+        #                        tooltip='Copy', icon='copy') # description='Copy',
+        #self._copy.on_click(self.on_click_copy)
+        #self._delete = ipw.Button(button_style='danger',
+        #                          tooltip='Delete', icon='fa-trash') # description='Delete',
+        #self._delete.on_click(self.on_click_delete)
 
         #self.children = [self._source, self._variables, self._record,
         #                 self._name, self._copy, self._delete]
 
         children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
-        children.extend([self._copy, self._delete])
+        #children.extend([self._copy, self._delete])
+        children.append(self._CONTROL_STRIP)
         self.children = children
 
         # Layout and formatting
         self._source.layout = ipw.Layout(width='110px', height='32px')
-        self.interface._CONTROLS['new'].layout = ipw.Layout(width='50px')
-        self.interface._CONTROLS['new'].button_style = 'success'
+
 
         if hasattr(self, '_record'):
             self._record.layout = ipw.Layout(width='80px')

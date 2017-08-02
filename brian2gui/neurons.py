@@ -42,20 +42,23 @@ class InputsInterface(Interface):
 
         self._CONTROLS = OrderedDict([('type', ipw.Dropdown(description='Type',
                                                             options=self._TYPES)),
-                                      ('new', ipw.Button(description='Add'))])
+                                      ('new', self._ITEMS['new']),
+                                      ('check', self._ITEMS['check']),
+                                      ('valid', self._ITEMS['valid'])])
+                                      #('new', ipw.Button(description='Add'))])
 
         #self.ENTRY_BOX = ipw.VBox(children=self.ENTRIES)  # self.children[-1]
         #self.ENTRY_BOX.children = self.ENTRIES
 
-        self._CONTROLS['new'].on_click(self.on_new_clicked)
+        #self._CONTROLS['new'].on_click(self.on_new_clicked)
 
         self.children = [ipw.HBox(children=list(self._CONTROLS.values())),
                          self.ENTRY_BOX]
 
         # Set formatting for entry controls
         self._CONTROLS['type'].layout = ipw.Layout(width='250px')
-        self._CONTROLS['new'].layout = ipw.Layout(width='50px')
-        self._CONTROLS['new'].button_style = 'success'
+        #self._CONTROLS['new'].layout = ipw.Layout(width='50px')
+        #self._CONTROLS['new'].button_style = 'success'
 
     def on_new_clicked(self, b, *args, **kwargs):
         # TODO: Consolidate this with inherited function
@@ -196,22 +199,23 @@ class InputsEntry(Entry, Simulated):
 
 
         # 'primary' 'success' 'info' 'warning' 'danger'
-        self._copy = ipw.Button(button_style='info',
-                                tooltip='Copy', icon='copy') # description='Copy',
-        self._copy.on_click(self.on_click_copy)
-        self._delete = ipw.Button(button_style='danger',
-                                  tooltip='Delete', icon='fa-trash') # description='Delete',
-        self._delete.on_click(self.on_click_delete)
+        #self._copy = ipw.Button(button_style='info',
+        #                        tooltip='Copy', icon='copy') # description='Copy',
+        #self._copy.on_click(self.on_click_copy)
+        #self._delete = ipw.Button(button_style='danger',
+        #                          tooltip='Delete', icon='fa-trash') # description='Delete',
+        #self._delete.on_click(self.on_click_delete)
 
         children = [self.__dict__['_{}'.format(field)] for field in self._FIELDS]
-        children.extend([self._copy, self._delete])
+        #children.extend([self._copy, self._delete])
+        children.append(self._CONTROL_STRIP)
         self.children = children
 
         # Formatting - may need to set padding to align labels properly
         self._name.layout = ipw.Layout(width='110px', height='32px')
 
-        self._copy.layout = ipw.Layout(width='25px', height='28px')
-        self._delete.layout = ipw.Layout(width='25px', height='28px')
+        #self._copy.layout = ipw.Layout(width='25px', height='28px')
+        #self._delete.layout = ipw.Layout(width='25px', height='28px')
 
 
 @register('brian2gui.NeuronGroupInterface')
@@ -246,9 +250,9 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
         self.gui = gui  # Top level container
 
         self._CONTROLS = OrderedDict([('template', ipw.Dropdown(description='Template', options=list(NEURON_MODELS.keys()))),
-                                      ('new', ipw.Button(description='Add', button_style='success', tooltip='Create new object', icon='fa-plus')),
-                                      ('check', ipw.Button(description='Check', button_style='info', tooltip='Check Brian objects', icon='fa-search')),
-                                      ('valid', ipw.Valid())])
+                                      ('new', self._ITEMS['new']),  # ipw.Button(description='Add', button_style='success', tooltip='Create new object', icon='fa-plus')),
+                                      ('check', self._ITEMS['check']),  # ipw.Button(description='Check', button_style='info', tooltip='Check Brian objects', icon='fa-search')),
+                                      ('valid', self._ITEMS['valid'])])
 
         # Make accordion for each type of group
         #input_controls = OrderedDict([('type', ipw.Dropdown(description='Type', options=self._TYPES)),
@@ -274,16 +278,16 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
         #self._CONTROLS['new'].on_click(self.on_new_clicked)
 
         # Set callback functions
-        self._CONTROLS['new'].on_click(self.on_new_clicked)
-        self._CONTROLS['check'].on_click(self.on_check_clicked)
+        #self._CONTROLS['new'].on_click(self.on_new_clicked)
+        #self._CONTROLS['check'].on_click(self.on_check_clicked)
 
         #self.accordion.selected_index = list(self._CONTROLS.keys()).index('Neurons')
         self.on_new_clicked(None)  # Create a neuron group of the default type (blank)
 
         # Set formatting for entry controls
         self._CONTROLS['template'].layout = ipw.Layout(width='250px')
-        self._CONTROLS['new'].layout = ipw.Layout(width='50px')
-        self._CONTROLS['new'].button_style = 'success'
+        #self._CONTROLS['new'].layout = ipw.Layout(width='50px')
+        #self._CONTROLS['new'].button_style = 'success'
 
         #self.children[0].children[0].width = '250px'
 
@@ -305,13 +309,6 @@ class NeuronGroupInterface(Interface):  # ipw.Box):
         # self.ENTRIES.append(type(self)(self, group_type=self._CONTROLS['type'].value))
         self.ENTRY_BOX.children = self.ENTRIES  # [nge for nge in self.ENTRIES]
         self.ENTRY_COUNTER += 1
-
-    def on_check_clicked(self, b):
-        '''Validate Brian objects'''
-        self._CONTROLS['valid'].value = False
-        for entry in self.ENTRIES:
-            entry.create_brian_object()
-        self._CONTROLS['valid'].value = True
 
 
 @register('brian2gui.NeuronGroupEntry')
@@ -441,12 +438,12 @@ class NeuronGroupEntry(Entry, traitlets.HasTraits):
 
 
         # 'primary' 'success' 'info' 'warning' 'danger'
-        self._copy = ipw.Button(button_style='info',
-                                tooltip='Copy', icon='copy') # description='Copy',
-        self._copy.on_click(self.on_click_copy)
-        self._delete = ipw.Button(button_style='danger',
-                                  tooltip='Delete', icon='fa-trash') # description='Delete',
-        self._delete.on_click(self.on_click_delete)
+        #self._copy = ipw.Button(button_style='info',
+        #                        tooltip='Copy', icon='copy') # description='Copy',
+        #self._copy.on_click(self.on_click_copy)
+        #self._delete = ipw.Button(button_style='danger',
+        #                          tooltip='Delete', icon='fa-trash') # description='Delete',
+        #self._delete.on_click(self.on_click_delete)
 
         #self.on_displayed(ipw.Box._fire_children_displayed)
         #self._model_id = None
@@ -465,7 +462,7 @@ class NeuronGroupEntry(Entry, traitlets.HasTraits):
         #children.extend([self._name, self._copy, self._delete])
         children = [ipw.HBox(children=[self._N, self._method, self._threshold,
                                        self._reset, self._refractory,
-                                       self._name, self._copy, self._delete]),
+                                       self._name, self._CONTROL_STRIP]),  # self._copy, self._delete]),
                     ipw.HBox(children=[self._model])]
 
         self.children = children
@@ -473,8 +470,8 @@ class NeuronGroupEntry(Entry, traitlets.HasTraits):
         # Formatting - may need to set padding to align labels properly
         self._name.layout = ipw.Layout(width='110px', height='32px')
 
-        self._copy.layout = ipw.Layout(width='25px', height='28px')
-        self._delete.layout = ipw.Layout(width='25px', height='28px')
+        #self._copy.layout = ipw.Layout(width='25px', height='28px')
+        #self._delete.layout = ipw.Layout(width='25px', height='28px')
 
         #display(self)
 

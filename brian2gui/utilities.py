@@ -28,10 +28,33 @@ class Interface(ipw.Box):
         super().__init__(*args, **kwargs)
         self.gui = gui  # Top level container
 
+        self._ITEMS = OrderedDict([('new', ipw.Button(description='Add', button_style='success', tooltip='Create new object', icon='fa-plus')),
+                                   ('check', ipw.Button(description='Check', button_style='info', tooltip='Check Brian objects', icon='fa-search')),
+                                   ('valid', ipw.Valid())])
+
+        # Set callback functions
+        self._ITEMS['new'].on_click(self.on_new_clicked)
+        self._ITEMS['check'].on_click(self.on_check_clicked)
+
+        # Formatting
+        self._ITEMS['new'].layout = ipw.Layout(width='60px')
+        #self._ITEMS['new'].button_style = 'success'
+        self._ITEMS['check'].layout = ipw.Layout(width='80px')
+        self._ITEMS['valid'].layout = ipw.Layout(width='50px')
+
+        self._CONTROL_STRIP = ipw.HBox(children=list(self._ITEMS.values()))
+
     def on_new_clicked(self, b, *args, **kwargs):
         self.ENTRIES.append(type(self)(self, *args, **kwargs))
         self.ENTRY_BOX.children = self.ENTRIES  # [nge for nge in self.ENTRIES]
         self.ENTRY_COUNTER += 1
+
+    def on_check_clicked(self, b, *args, **kwargs):
+        '''Validate Brian objects'''
+        self._CONTROLS['valid'].value = False
+        for entry in self.ENTRIES:
+            entry.create_brian_object()
+        self._CONTROLS['valid'].value = True
 
 
 # @abc.ABCMeta
@@ -42,6 +65,20 @@ class Entry(ipw.Box):
 
     _model_name = Unicode('HBoxModel').tag(sync=True)
     _view_name = Unicode('HBoxView').tag(sync=True)
+
+    # TODO: Consolidate controls for interfaces and entries
+
+    # 'primary' 'success' 'info' 'warning' 'danger'
+    #_check = ipw.Button(button_style='info',
+    #                   tooltip='Check', icon='fa-search') # description='Check',
+
+    #_copy = ipw.Button(button_style='success',
+    #                   tooltip='Copy', icon='copy') # description='Copy',
+
+    #_delete = ipw.Button(button_style='danger',
+    #                     tooltip='Delete', icon='fa-trash') # description='Delete',
+
+    #_valid_w = ipw.Valid()
 
     @property
     def name(self):
@@ -55,9 +92,42 @@ class Entry(ipw.Box):
         super().__init__()
         self.interface = interface
         if 'group_type' in kwargs:
-            # self.group_type = group_type
             self.group_type = kwargs['group_type']
         self._uuid = uuid.uuid4()
+
+        self._ITEMS = OrderedDict([('check', ipw.Button(button_style='info',
+                                                        tooltip='Check', icon='fa-search')),
+                                   ('copy',  ipw.Button(button_style='success',
+                                                        tooltip='Copy', icon='copy')),
+                                   ('delete', ipw.Button(button_style='danger',
+                                                         tooltip='Delete', icon='fa-trash')),
+                                   ('valid', ipw.Valid(value=True))])
+        #self._ITEMS['name'] =
+
+        # HACK!
+        self._check = self._ITEMS['check']
+        self._copy = self._ITEMS['copy']
+        self._delete = self._ITEMS['delete']
+
+        # Attach callback functions
+        self._ITEMS['check'].on_click(self.on_click_check)
+        self._ITEMS['copy'].on_click(self.on_click_copy)
+        self._ITEMS['delete'].on_click(self.on_click_delete)
+
+        # Formatting
+        #self._ITEMS['name'].layout = ipw.Layout(width='110px', height='32px')
+        self._ITEMS['check'].layout = ipw.Layout(width='25px', height='28px')
+        self._ITEMS['copy'].layout = ipw.Layout(width='25px', height='28px')
+        self._ITEMS['delete'].layout = ipw.Layout(width='25px', height='28px')
+        self._ITEMS['valid'].layout = ipw.Layout(width='25px', height='28px')
+
+        self._CONTROL_STRIP = ipw.HBox(children=list(self._ITEMS.values()))
+
+        self._CONTROL_STRIP.layout = ipw.Layout(margin='0px', padding='0px')
+
+    # TODO: Write general function
+    def create_brian_object(self):
+        pass
 
     def _change_name(self, change):
         self._name.value = change['new']
@@ -85,6 +155,9 @@ class Entry(ipw.Box):
             attribute = '_{}'.format(key)
             if hasattr(self, attribute) and key is not 'name':
                 self.__dict__[attribute].value = value
+
+    def on_click_check(self, b):
+        self.create_brian_object()
 
     def on_click_copy(self, b):
         clone = type(self)(self.interface, self.group_type)  # self.deepcopy()

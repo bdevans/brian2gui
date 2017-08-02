@@ -4,11 +4,11 @@ from IPython.display import display
 from traitlets import Unicode
 import uuid
 from ipywidgets.widgets import register
-from brian2gui.utilities import Entry
+from brian2gui.utilities import Interface, Entry
 
 
 @register('brian2gui.SynapsesInterface')
-class SynapsesInterface(ipw.Box):
+class SynapsesInterface(Interface):  # ipw.Box):
     """Class definition for Brian 2 Synapses graphical interface"""
 
     _model_name = Unicode('VBoxModel').tag(sync=True)
@@ -23,13 +23,16 @@ class SynapsesInterface(ipw.Box):
     def __init__(self, gui=None):
         super().__init__()
         self.gui = gui
-        self._CONTROLS = OrderedDict([('new', ipw.Button(description='Add'))])
+        #self._CONTROLS = OrderedDict([('new', ipw.Button(description='Add'))])
+        self._CONTROLS = OrderedDict([('new', self._ITEMS['new']),
+                                      ('check', self._ITEMS['check']),
+                                      ('valid', self._ITEMS['valid'])])
         self._CONTROLS['new'].on_click(self.on_new_clicked)
         self.children = (ipw.HBox(children=list(self._CONTROLS.values())),
                          self.ENTRY_BOX)
 
         # Set formatiing and layout
-        self._CONTROLS['new'].button_style = 'success'
+        #self._CONTROLS['new'].button_style = 'success'
 
     def on_new_clicked(self, b):
         self.ENTRIES.append(SynapseEntry(self))
@@ -58,13 +61,16 @@ class SynapseEntry(Entry):  # Subclass br.Synpases too?
 
     _ids = []
 
-    def __init__(self, interface=None):  #, source='NeuronGroup', target='', model=None, on_pre=None,
+    # TODO: Remove group_type and use variable numbbers of arguments
+    def __init__(self, interface=None, group_type=None):  #, source='NeuronGroup', target='', model=None, on_pre=None,
                  #pre=None, on_post=None, post=None, connect=None, delay=None): #,
                  #*args, **kwargs):
                  #on_event='spike', multisynaptic_index=None, namespace=None, dtype=None, codeobj_class=None, dt=None, clock=None, order=0, method=('linear', 'euler', 'heun'), name='synapses*'):
 
         super().__init__()
         self.interface = interface
+
+        self.group_type = group_type  # HACK!
 
         # self._name.observe(self._change_label, names='value')
         self._uuid = uuid.uuid4()
@@ -111,17 +117,17 @@ class SynapseEntry(Entry):  # Subclass br.Synpases too?
         for field in self._FIELDS:
             setattr(self, '_{}'.format(field), self._ITEMS[field])
 
-        self._copy = ipw.Button(button_style='info',
-                                tooltip='Copy', icon='copy') # description='Copy',
-        self._copy.on_click(self.on_click_copy)
-        self._delete = ipw.Button(button_style='danger',
-                                  tooltip='Delete', icon='fa-trash') # description='Delete',
-        self._delete.on_click(self.on_click_delete)
+        #self._copy = ipw.Button(button_style='info',
+        #                        tooltip='Copy', icon='copy') # description='Copy',
+        #self._copy.on_click(self.on_click_copy)
+        #self._delete = ipw.Button(button_style='danger',
+        #                          tooltip='Delete', icon='fa-trash') # description='Delete',
+        #self._delete.on_click(self.on_click_delete)
 
         #self.children = list(self._ITEMS.values())
         # ipw.Label(value='$\\rightarrow$'),
         children = [ipw.HBox(children=(self._ITEMS['source'], self._ITEMS['target'], self._ITEMS['model'], self._ITEMS['on_pre'], self._ITEMS['on_post'], self._ITEMS['delay'], self._ITEMS['on_event'])),
-                    ipw.HBox(children=(self._ITEMS['i'], self._ITEMS['j'], self._ITEMS['n'], self._ITEMS['condition'], self._ITEMS['p'], self._ITEMS['method'], self._ITEMS['name'], self._copy, self._delete))]
+                    ipw.HBox(children=(self._ITEMS['i'], self._ITEMS['j'], self._ITEMS['n'], self._ITEMS['condition'], self._ITEMS['p'], self._ITEMS['method'], self._ITEMS['name'], self._CONTROL_STRIP))]
         #children.extend(self.copy, self.delete)
         self.children = children
 
@@ -139,5 +145,8 @@ class SynapseEntry(Entry):  # Subclass br.Synpases too?
         self._p.layout = ipw.Layout(width='25px')
         self._n.layout = ipw.Layout(width='25px')
         self._method.layout = ipw.Layout(width='70px', height='32px')
-        self._copy.layout = ipw.Layout(width='25px', height='28px')
-        self._delete.layout = ipw.Layout(width='25px', height='28px')
+        self._ITEMS['condition'].layout = ipw.Layout(width='110px', height='32px')
+        self._ITEMS['i'].layout = ipw.Layout(width='110px', height='32px')
+        self._ITEMS['j'].layout = ipw.Layout(width='110px', height='32px')
+        #self._copy.layout = ipw.Layout(width='25px', height='28px')
+        #self._delete.layout = ipw.Layout(width='25px', height='28px')
