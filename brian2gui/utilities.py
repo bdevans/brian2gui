@@ -129,6 +129,9 @@ class Entry(ipw.Box):
     def create_brian_object(self):
         pass
 
+    def create_code(self):
+        pass
+
     def _change_name(self, change):
         self._name.value = change['new']
 
