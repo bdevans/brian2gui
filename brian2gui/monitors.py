@@ -48,8 +48,8 @@ class MonitorsInterface(Interface):  # ipw.Box):
         #self._CONTROLS['new'].on_click(self.on_new_clicked)
 
         # Formatting
-        self._CONTROLS['new'].layout = ipw.Layout(width='50px')
-        self._CONTROLS['new'].button_style = 'success'
+        #self._CONTROLS['new'].layout = ipw.Layout(width='50px')
+        #self._CONTROLS['new'].button_style = 'success'
 
     def on_new_clicked(self, b):
         self.ENTRIES.append(MonitorsEntry(self, self._CONTROLS['type'].value))
