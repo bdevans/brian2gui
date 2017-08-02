@@ -138,7 +138,14 @@ class MonitorsEntry(Entry): #ipw.Box):  # MonitorsInterface
             self._record.layout = ipw.Layout(width='80px')
             # Change button colour when recording
             # Check this works with Text fields
-            self._record.observe(self.on_record_click)
+            self._record.observe(self.on_record_click, names='value')
+            if self._record.value is True:
+                self._record.button_style = 'success'
+                self._record.icon = 'fa-toggle-on'
+            else:
+                self._record.button_style = ''
+                self._record.icon = 'fa-toggle-off'
+
         self._name.layout = ipw.Layout(width='110px', height='32px')
         self._copy.layout = ipw.Layout(width='25px', height='28px')
         self._delete.layout = ipw.Layout(width='25px', height='28px')
@@ -146,5 +153,7 @@ class MonitorsEntry(Entry): #ipw.Box):  # MonitorsInterface
     def on_record_click(self, change):
         if change['new'] is True:
             self._record.button_style = 'success'
+            self._record.icon = 'fa-toggle-on'
         else:
             self._record.button_style = ''
+            self._record.icon = 'fa-toggle-off'
