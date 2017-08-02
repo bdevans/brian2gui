@@ -10,12 +10,14 @@ RUN conda config --add channels brian-team
 
 # Install Python 3 packages
 RUN conda install --quiet --yes \
+    'sphinx=1.6.*' \
     'brian2=2.0.*' \
     'brian2tools=0.2.*' && \
     conda clean -tipsy
 
 # Install Python 2 packages
 RUN conda install --quiet --yes -p $CONDA_DIR/envs/python2 python=2.7 \
+    'sphinx=1.6.*' \
     'brian2=2.0.*' \
     'brian2tools=0.2.*' \
     'mayavi=4.5.*' && \
