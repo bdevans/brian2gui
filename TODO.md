@@ -7,6 +7,13 @@ TODO
 * Add a 'More' button to automatically generate all the optional fields in addition to statically listed and nicely formatted main ones
 * Invalidate each object once parameters are changed then check all at runtime and only regenerate where necessary
 
-* sphnxext to pull out docstrings
+* Add synapse models from brian2/examples/synapses/
+* brain2tools plotting button
+* Add a help button on each tab / object type
+* Revise Monitors inputs to handle objects derived from Group and SpikeSource: Group -> StateMonitor; SpikeSource -> SpikeMonitor
 * BrianObjectException to highlight offending field
-* Use base.py:121 'BrianObject()._dependencies' to invalidate interdependencies
+* Use base.py:121 `BrianObject()._dependencies` to invalidate interdependencies
+* Add setup.py
+* Run sphinx on installation (see sphinxext) to pull out docstrings
+    - http://www.sphinx-doc.org/en/stable/tutorial.html
+    - sphinx-build -b html sourcedir builddir

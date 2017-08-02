@@ -68,6 +68,7 @@ class Brian2GUI(ipw.Box):
         self._tabs.layout = ipw.Layout(width='900px')
         #display(self)
 
+# TODO: Fix this minor bug requiring back and forth between tabs to update
     def on_tab_change(self, change):
         '''Update lists of NeuronGroup names for Synapses and Monitors'''
         # Raise an error if there are no NeuronGroups
