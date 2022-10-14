@@ -180,11 +180,11 @@ class Entry(ipw.Box):
 
 
 @register('brian2gui.Simulated')
-class Simulated(object):
+class Simulated(metaclass=abc.ABCMeta):
     '''Class for simulated objects.
     See: http://brian2.readthedocs.io/en/stable/user/running.html'''
 
-    __metaclass__ = abc.ABCMeta
+    #__metaclass__ = abc.ABCMeta
 
     _dt = None
     _schedule = ['start', 'groups', 'thresholds', 'synapses', 'resets', 'end']
