@@ -45,3 +45,14 @@ NEURON_MODELS = OD([('Blank', OD([('model', ''), ('threshold', ''), ('reset', ''
                     ('Hodgkin-Huxley', OD([('model', HH), ('threshold', 'v > -40*mV'), ('reset', ''), ('refractory', 'v > -40*mV')]))])
 
 SYNAPSE_MODELS = OD([])
+
+
+#from collections import namedtuple
+#Neuron = namedtuple('Neuron', ['model', 'threshold', 'reset', 'refractory'])
+#Neuron.__doc__ += ': Neuron model'
+#Neuron.model.__doc__ = 'Differential equations describing the cell membrane potential'
+#Neuron.threshold.__doc__ = 'Firing threshold'
+#...
+#LIFneuron = Neuron(model=LIF, threshold='v > 10*mV', reset='v = 0*mV', refractory='5*ms')
+##LIFneuron._asdict()  # Return OrderedDict
+##NewLIF = LIFneuron._replace(refractory='2*ms')  # New instance of namedtuple replacing the value of refractory
