@@ -132,6 +132,10 @@ class Entry(ipw.Box):
     def create_code(self):
         pass
 
+    # TODO: Use exec to execute the whole simulation as a multiline string
+    def run_code(self):
+        eval(self._code)  # Single statement
+
     def _change_name(self, change):
         self._name.value = change['new']
 
