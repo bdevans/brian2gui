@@ -1,6 +1,7 @@
 TODO
 ====
 
+* Widgets are no longer registered with a string argument to the decorator but depend on `_model_*` and `_view_*` http://ipywidgets.readthedocs.io/en/latest/migration_guides.html
 * Create Brian object for each GUI object
 * Build the GUI fields from the Brian objects automatically
 * Link the Brian object values to the corresponding GUI object values for automatic updates
