@@ -1,6 +1,6 @@
 FROM jupyter/scipy-notebook
 
-MAINTAINER Ben Evans <b.d.evans@gmail.com>
+MAINTAINER Ben Evans <ben.d.evans@gmail.com>
 
 USER $NB_USER
 
