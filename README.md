@@ -1,15 +1,14 @@
-Brian 2 Graphical User Interface Readme
-=======================================
+Brian2 Graphical User Interface
+===============================
 
-This is an add on for the Brian 2 Spiking Neural Network Simulator. It provides
-an intuitive graphical user interface built on Jupyter notebook widgets.
+This is an add on for the Brian2 Spiking Neural Network Simulator. It provides an intuitive graphical user interface built on Jupyter notebook widgets.
 
 
 Dependencies
 ------------
 
-brian2
-brian2tools
+- brian2
+- brian2tools
 
 
 Quickstart
@@ -27,7 +26,6 @@ Quickstart
 4. Copy and paste the notebook server URL into your browser
 
 5. Open the notebook `brian2gui.ipynb`
-
 
 
 Ideas
