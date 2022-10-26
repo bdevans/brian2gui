@@ -1,6 +1,6 @@
 FROM jupyter/scipy-notebook
 
-MAINTAINER Ben Evans <ben.d.evans@gmail.com>
+LABEL org.opencontainers.image.authors="ben.d.evans@gmail.com"
 
 USER $NB_USER
 
