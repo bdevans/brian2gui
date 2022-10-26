@@ -1,0 +1,4 @@
+brian2
+# brain2tools
+# ipywidgets>=4.1<5
+ipywidgets==4.1.1
